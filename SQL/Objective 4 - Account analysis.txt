@@ -1,0 +1,85 @@
+--Objective 4 - Account analysis (CRM Sales)
+-- Your final objective is to analyze the company's accounts to get a better understanding of the team's customers
+
+
+-- Question 1: Calculate revenue by office location, and identify the lowest performer
+Select 
+    office_location,
+    sum(revenue) as total_revenue
+from mimetic-radio-460210-t7.CRM_Sales_Opportunities_accounts.accounts
+group by 1
+Order by 2 desc
+
+
+
+-- Question 2: Find the gap in years between the oldest and newest customer, and name those companies
+with cte_oldest_newest_customer as (
+SELECT
+    Max(year_established) as Newst_cutomer,
+    Min(year_established) as Oldest_cutomer,
+    Max(year_established) - Min(year_established) as Age_gap
+from mimetic-radio-460210-t7.CRM_Sales_Opportunities_accounts.accounts
+)
+
+Select 
+    account,
+    year_established,
+    Age_gap
+from cte_oldest_newest_customer
+join mimetic-radio-460210-t7.CRM_Sales_Opportunities_accounts.accounts
+on cte_oldest_newest_customer.Oldest_cutomer = year_established or cte_oldest_newest_customer.Newst_cutomer = year_established
+where year_established in (Newst_cutomer,year_established)
+
+
+
+--Question 3: Which accounts that were subsidiaries had the most lost sales opportunities?
+SELECT
+  a.account,
+  COUNT(s.opportunity_id) AS lost_opportunities_count
+FROM
+  `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`accounts` AS a
+left JOIN
+  `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline` AS s
+ON
+  a.account = s.account
+WHERE
+  a.subsidiary_of IS NOT NULL
+  AND deal_stage = 'Lost'
+GROUP BY a.account
+ORDER BY 2 DESC;
+ 
+
+ -- Question 4: Join the companies to their subsidiaries. Which one had the highest total revenue?
+SELECT
+  COALESCE(parent.account, accounts.account) AS company_or_parent,
+  SUM(accounts.revenue) AS total_revenue
+FROM
+  `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`accounts` AS accounts
+LEFT JOIN
+  `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`accounts` AS parent
+ON
+  accounts.subsidiary_of = parent.account
+GROUP BY
+  company_or_parent
+ORDER BY
+  total_revenue DESC
+LIMIT 1;
+
+
+-- What is the total revenue of Acme Corp and all of its subsidiaries? What is the total revenue of Acme Corp and all of its subsidiaries? use pipe line table for revenue used close_value field
+
+-- What is the total revenue of Acme Corp and all of its subsidiaries? What is the total revenue of Acme Corp and all of its subsidiaries? use pipe line table for revenue used close_value field
+SELECT
+  SUM(t2.close_value) AS total_revenue
+FROM
+  `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`accounts` AS t1
+INNER JOIN
+  `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline` AS t2
+ON
+  t1.account = t2.account
+WHERE
+  t1.account = 'Acme Corporation'
+  OR t1.subsidiary_of = 'Acme Corporation';
+
+
+

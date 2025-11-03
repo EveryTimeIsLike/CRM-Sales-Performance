@@ -1,0 +1,77 @@
+--Objective 2 - Sales agent performance
+-- Your second objective is to assess the performance of sales agents, their managers, and regional offices
+
+-- Question 1: Calculate the win rate for each sales agent, and find the top performer
+select
+  sales_pipeline.sales_agent,
+  COUNT(DISTINCT sales_pipeline.opportunity_id) AS total_opportunities,
+  SUM(
+    CASE
+      WHEN sales_pipeline.deal_stage = 'Won'
+          THEN 1
+          else 0
+    END)
+    AS won_opportunities,
+  ROUND(SUM(
+    CASE
+      WHEN sales_pipeline.deal_stage = 'Won'
+          THEN 1
+          else 0
+    END)/COUNT(DISTINCT sales_pipeline.opportunity_id),2) AS win_rate
+
+FROM
+   `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline`
+GROUP BY
+   sales_pipeline.sales_agent
+ORDER BY win_rate DESC;
+
+
+-- Question 2: Calculate the total revenue by agent, and see who generated the most
+SELECT
+  sales_pipeline.sales_agent,
+  SUM(sales_pipeline.close_value) AS total_revenue
+FROM
+  `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts.sales_pipeline`  as sales_pipeline
+GROUP BY
+  sales_pipeline.sales_agent
+Order by 
+  total_revenue DESC;
+
+
+
+-- Question 3: Calculate win rates by manager to determine which manager’s team performed best
+SELECT
+  sales_teams.manager,
+  COUNT(DISTINCT sales_pipeline.opportunity_id) AS total_opportunities,
+  SUM(
+    CASE
+      WHEN sales_pipeline.deal_stage = 'Won'
+          THEN 1
+          else 0
+    END)
+    AS won_opportunities,
+  ROUND(SUM(
+    CASE
+      WHEN sales_pipeline.deal_stage = 'Won'
+          THEN 1
+          else 0
+    END)/COUNT(DISTINCT sales_pipeline.opportunity_id),2) as win_rate
+From `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline` as sales_pipeline INNER JOIN `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_teams` as sales_teams
+ON sales_pipeline.sales_agent = sales_teams.sales_agent
+GROUP BY sales_teams.manager
+ORDER BY win_rate DESC;
+
+
+
+-- Question 4: For the product GTX Plus Pro, find which regional office sold the most units
+Select 
+  sales_teams.regional_office,
+  Count(sales_pipeline.opportunity_id) AS units_sold
+From `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline` as sales_pipeline
+left join `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_teams` as sales_teams
+on sales_pipeline.sales_agent = sales_teams.sales_agent
+where sales_pipeline.product = 'GTX Plus Pro'
+and deal_stage = 'Won'
+group by sales_teams.regional_office
+Order by units_sold DESC;
+

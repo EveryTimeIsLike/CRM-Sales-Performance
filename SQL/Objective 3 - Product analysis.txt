@@ -1,0 +1,42 @@
+--Objective 3 - Product analysis (CRM Sales)
+-- Your third objective is to analyze the sales performance and quantity sold of the company's product portfolio
+
+-- question 1: For March deals, identify the top product by revenue and compare it to the top by units sold
+Select 
+    product,
+    Count(opportunity_id) as products_sold,
+    SUM(close_value) as revenue,
+    AVG(close_value) as AVG_revenue_per_product
+From `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline`
+where product is not null and close_date is not null and extract(Month from close_date) = 3
+and deal_stage = 'Won'
+Group by product
+Order by AVG_revenue_per_product desc
+
+
+
+-- Question 2: Calculate the average difference between "sales_price" and "close_value" for each product, and note if the results suggest a data issue
+Select 
+    sales_pipeline.product,
+    AVG(sales_price) as AVG_Sales_price,
+    Round(AVG(close_value),2) as AVG_close_value,
+    Round(AVG(sales_price) - AVG(close_value),2) as Gap_AVG_price,
+    AVG(close_value)/AVG(sales_price) as Ratio
+From `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline`
+left join `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`products` on products.product = sales_pipeline.product
+where sales_pipeline.product is not null and sales_pipeline.close_date is not null
+and deal_stage = 'Won'
+Group by product
+Order by Gap_AVG_price desc 
+
+
+-- Question 3: Calculate total revenue by product series and compare their performance
+Select 
+    products.series,
+    SUM(close_value) as Revenue
+From `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`sales_pipeline`
+left join `mimetic-radio-460210-t7`.`CRM_Sales_Opportunities_accounts`.`products` on products.product = sales_pipeline.product
+where sales_pipeline.product is not null and series is not null and sales_pipeline.close_date is not null
+and deal_stage = 'Won'
+Group by series
+Order by Revenue desc 

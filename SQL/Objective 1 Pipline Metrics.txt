@@ -1,0 +1,81 @@
+--Objective 1 - Pipeline metrics
+-- Your first objective is to assess the overall sales pipeline by looking at opportunities by month, time to close, win rate, and product data
+
+-- Question1: Calculate the number of sales opportunities created each month using "engage_date", and identify the month with the most opportunities
+
+select
+   EXTRACT(Year FROM engage_date) AS Year
+  ,EXTRACT(Month FROM engage_date) AS Month_number
+  ,count(*) as number_engage
+from `CRM_Sales_Opportunities_accounts.sales_pipeline`
+group by 1,2
+order by 3 desc
+limit 1
+
+
+
+-- Question 2: Average time deals stayed open and comparison of closed vs won deals
+WITH cte_deal_durations AS (
+  SELECT
+    t.opportunity_id,
+    t.engage_date,
+    t.close_date,
+    t.deal_stage, 
+    DATE_DIFF(IFNULL(t.close_date, CURRENT_DATE()), t.engage_date, DAY) AS duration_days
+  FROM
+    `mimetic-radio-460210-t7.CRM_Sales_Opportunities_accounts.sales_pipeline` AS t
+    
+)
+
+SELECT
+  AVG(case when deal_stage = 'Won' then duration_days end) as AVG_Won_deals,
+  AVG(case when deal_stage = 'Lost' then duration_days end) as AVG_Lost_deals,
+  AVG(case when close_date != CURRENT_DATE() then duration_days end) as AVG_Closed_deals,
+  AVG(case when close_date is null then DATE_DIFF(IFNULL(close_date, CURRENT_DATE()), engage_date, DAY) end) as AVG_Open_deals,
+FROM
+  cte_deal_durations
+
+
+-- question 3: Calculate the percentage of deals in each stage, and determine what share were lost
+With Cte_stage as (
+SELECT
+    t.deal_stage, 
+    count(t.opportunity_id) as total
+FROM
+    `mimetic-radio-460210-t7.CRM_Sales_Opportunities_accounts.sales_pipeline` AS t
+Group by 
+    t.deal_stage
+)
+
+Select 
+   deal_stage
+  ,total
+  ,ROUND((total * 100.0 / (SUM(total) OVER())), 2) as share_of_total_percentage
+  ,CASE 
+        WHEN deal_stage = 'Lost' 
+        THEN ROUND(total * 100.0 / SUM(total) OVER(), 2)
+        ELSE 0
+    END AS lost_share_percentage
+From Cte_stage
+Order by share_of_total_percentage desc
+
+
+
+-- question 4: Compute the win rate for each product, and identify which one had the highest win rate
+SELECT 
+    t.product,
+    SUM(CASE WHEN t.deal_stage = 'Won' THEN 1 ELSE 0 END) AS total_wins,
+    COUNT(t.opportunity_id) AS total_deals,
+    Round((SUM(CASE WHEN t.deal_stage = 'Won' THEN 1 ELSE 0 END) / COUNT(t.opportunity_id))*100,2) as Wins_rate
+FROM
+    `mimetic-radio-460210-t7.CRM_Sales_Opportunities_accounts.sales_pipeline` AS t
+GROUP BY 
+    t.product
+ORDER BY
+    total_wins DESC
+--LIMIT 1
+
+
+
+
+
