@@ -5,12 +5,14 @@ This project analyzes end-to-end sales performance for a global B2B software com
 The goal was to understand sales efficiency, product profitability, and customer value — ultimately helping leadership identify top performers and streamline the sales funnel.
 
 🎯 Business Objectives
+
 Measure overall pipeline health — deal flow, conversion rate, and cycle time.
 Evaluate agent and manager performance across offices and regions.
 Analyze product portfolio profitability and pricing integrity.
 Assess customer account structure and revenue concentration.
 
 🧩 Data & Preparation
+
 Datasets Used:
 sales_pipeline.csv – Opportunities, deal stages, product sold, revenue.
 sales_teams.csv – Sales agents, managers, and regional offices.
@@ -19,6 +21,7 @@ accounts.csv – Customer data, revenue, and company hierarchy.
 data_dictionary.csv – Metadata and field definitions.
 
 Data Preparation Steps:
+
 Cleaned and validated field formats (engage_date, close_date, numeric consistency).
 Joined datasets in BigQuery for a unified sales data model.
 Created CTEs for time-to-close metrics and deal-stage breakdowns.
@@ -49,6 +52,7 @@ Subsidiaries with most lost opportunities.
 Consolidated revenue for parent companies (e.g., Acme Corporation + subsidiaries).
 
 📈 Key Insights
+
 Top 3 agents achieved >65 % win rate, far above company average (~40 %).
 West regional office led both win rate and revenue share.
 Several products showed >20 % variance between sales and close value, suggesting CRM pricing data quality issues.
@@ -56,12 +60,14 @@ Several products showed >20 % variance between sales and close value, suggesting
 Acme Corporation group was the top customer when subsidiaries were consolidated.
 
 💡 Business Impact
+
 ✅ Standardized sales performance KPIs across all teams.
 ✅ Improved forecast accuracy and pipeline visibility.
 ✅ Revealed underperforming regions and pricing inconsistencies.
 ✅ Informed future sales incentive design and regional strategy.
 
 🛠️ Tools & Skills
+
 Database	Google BigQuery
 Query Language	SQL (CTEs, Window Functions, Aggregations, Joins)
 BI & Visualization	Power BI
