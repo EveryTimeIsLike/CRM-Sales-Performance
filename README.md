@@ -25,6 +25,7 @@ Created CTEs for time-to-close metrics and deal-stage breakdowns.
 Standardized product names and removed nulls for consistent aggregation.
 
 ⚙️ Analytical Approach & SQL Highlights
+
 Objective 1 – Pipeline Metrics
 Opportunities created per month (EXTRACT(Month FROM engage_date)) to identify demand peaks.
 Average deal duration for Won, Lost, and Open deals using DATE_DIFF().
